@@ -36,11 +36,17 @@ Terraform ≥ 1.6 · AWS provider 5.x · GitHub Actions · tflint · checkov
 
 ```
 bootstrap/        One-time: creates the S3 state bucket + DynamoDB lock table
-modules/vpc/      VPC, subnets across AZs, IGW, NAT, route tables
+modules/vpc/      VPC, subnets across AZs, IGW, NAT, route tables, flow logs
 modules/iam/      EC2 instance role with SSM access (least privilege)
 envs/dev/         Dev environment (single NAT to save cost)
 envs/prod/        Prod environment (one NAT per AZ for high availability)
 .github/workflows/terraform.yml   fmt, validate, tflint and checkov on every push/PR
+```
+
+## Local checks
+
+```bash
+pip install pre-commit && pre-commit install   # fmt, validate, tflint, secret scan on every commit
 ```
 
 ## How to deploy
@@ -73,6 +79,7 @@ cd envs/dev && terraform destroy
 |----------|---------------|
 | NAT Gateway | ~$32/month + data |
 | VPC, subnets, IAM, S3 state, DynamoDB | ~$0–1/month |
+| VPC flow logs (rejected traffic only) | ~$0–2/month |
 
 ## Screenshots
 
@@ -84,6 +91,6 @@ Add to `docs/` after deploying: `terraform apply` output, VPC resource map in th
 
 ## Roadmap
 
-- [ ] Add VPC flow logs to CloudWatch
+- [x] Add VPC flow logs to CloudWatch (rejected traffic, 30-day retention)
 - [ ] Add GitHub Actions OIDC role and `terraform plan` on PRs against AWS
 - [ ] Add bastion-less access via SSM Session Manager demo instance
